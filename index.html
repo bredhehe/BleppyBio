@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bleppy Bio</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+      background: #000;
+      position: relative;
+    }
+
+    /* Fixed background video styles */
+    #background-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      z-index: 0;
+    }
+
+    /* Dark overlay on the background video */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.1);
+      z-index: -1;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      padding: 100px 40px;
+      animation: fadeIn 1.2s ease-out;
+    }
+
+    .left-panels {
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+      transform: translateX(-40px);
+      animation: slideInLeft 1s ease-out forwards;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 40px 25px;
+      max-width: 800px;
+      width: 90%;
+      box-shadow: 0 25px 40px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+
+    .panel:hover {
+      transform: scale(1.03);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .right-panel {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 40px 25px;
+      width: 320px;
+      margin-top: 60px;
+      box-shadow: 0 25px 40px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      animation: slideInRight 1s ease-out forwards;
+    }
+
+    .album-cover {
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      transition: transform 0.5s ease-in-out, opacity 0.4s ease-in-out;
+    }
+
+    .song-info {
+      text-align: center;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      transition: all 0.4s ease;
+      opacity: 1;
+    }
+
+    #song-title {
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    #song-author {
+      color: #ccc;
+      font-size: 14px;
+      margin-top: 2px;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 25px;
+      color: white;
+      font-size: 24px;
+    }
+
+    .controls i {
+      cursor: pointer;
+      transition: color 0.3s, transform 0.2s;
+    }
+
+    .controls i:hover {
+      color: #9b9b9b;
+      transform: scale(1.2);
+    }
+
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 3px;
+      outline: none;
+      transition: backround 0.3s;
+    }
+
+    .slider::-webkit-slider-runnable-track {
+      background: transparent;
+    }
+
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      margin-top: -4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: white;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s ease;
+    }
+
+    .slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+    }
+
+    .slider::-moz-range-track {
+      background: transparent;
+    }
+
+    .slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    h1, h2 {
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #fff;
+    }
+
+    p {
+      color: #ddd;
+    }
+
+    a {
+      color: #9b9b9b;
+      text-decoration: none;
+    }
+
+    #popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+      color: white;
+      font-size: 2rem;
+      font-weight: bold;
+      text-align: center;
+      opacity: 1;
+      transition: opacity 0.5s ease-out;
+    }
+
+    #popup.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Typewriter animation */
+    .typewriter {
+      display: inline-block;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      animation: typing 3s steps(15) 1s forwards, blink 0.75s step-end infinite;
+    }
+
+    @keyframes typing {
+      to {
+        width: 100%;
+      }
+    }
+
+    @keyframes blink {
+      50% {
+        border-color: transparent;
+      }
+    }
+
+    @keyframes slideInLeft {
+      0% { opacity: 0; transform: translateX(-100px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes slideInRight {
+      0% { opacity: 0; transform: translateX(100px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+    <!-- Background Video -->
+    <video id="background-video" autoplay loop muted playsinline preload="auto">
+        <source src="background.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+      
+    <!-- Popup Message -->
+    <div id="popup">
+      <p>Click to enter Bleppys Corner</p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container">
+      <div class="left-panels">
+        <div class="panel">
+          <h1><span class="typewriter">Welcome</span></h1>
+          <p>This is my custom bio-page since I hate Discord's character limit, and I like being special!</p>
+        </div>
+        <div class="panel">
+          <h2>About</h2>
+          <p>• I am a 1.5+ Year long Unity developer.</p>
+          <p>• I know C++ & HTML.</p>
+          <p>• I am diagnosed with autism.</p>
+          <p>• Valory is the best.</p>
+        </div>
+        <div class="panel">
+          <h2>Contact</h2>
+          <p>Discord: <a href="https://discord.com/users/1259236756935675914">@unknown.blep</a></p>
+          <p>Email: <a href="mailto:apemanager2.0@gmail.com">apemanager2.0@gmail.com</a></p>
+        </div>
+      </div>
+
+      <div class="right-panel">
+        <img id="album-cover" class="album-cover" src="cover1.png" alt="Album Cover">
+        <div class="song-info" id="song-info">
+          <div id="song-title">Her</div>
+          <div id="song-author">The American Dream</div>
+        </div>
+        <div class="controls">
+          <i class="fas fa-backward" id="prev"></i>
+          <i class="fas fa-play" id="play-pause"></i>
+          <i class="fas fa-forward" id="next"></i>
+        </div>
+        <input type="range" id="seek-slider" class="slider" value="0" max="100">
+        <audio id="audio" src="1.mp3" muted autoplay></audio>
+      </div>
+    </div>
+
+    <script>
+      const tracks = [
+        { src: '1.mp3', cover: 'cover1.png', title: 'Her', author: 'The American Dream' },
+        { src: '2.mp3', cover: 'cover2.png', title: 'Wheres My Love (Acoustic)', author: 'SYML' },
+        { src: '3.mp3', cover: 'cover3.png', title: 'Younger', author: 'The Hails' },
+        { src: '4.mp3', cover: 'cover4.png', title: 'Nope your too late i already died', author: 'wifiskeleton' },
+        { src: '5.mp3', cover: 'cover5.png', title: 'Cry', author: 'Cigarettes After Sex' },
+        { src: '6.mp3', cover: 'cover6.png', title: 'The Night We Met', author: 'Lord Huron' },
+      ];
+
+      let currentTrack = 0;
+      const audio = document.getElementById('audio');
+      const cover = document.getElementById('album-cover');
+      const title = document.getElementById('song-title');
+      const author = document.getElementById('song-author');
+      const playPauseBtn = document.getElementById('play-pause');
+      const prevBtn = document.getElementById('prev');
+      const nextBtn = document.getElementById('next');
+      const slider = document.getElementById('seek-slider');
+      const popup = document.getElementById('popup');
+      const songInfo = document.getElementById('song-info');
+
+      function loadTrack(index) {
+        cover.style.opacity = 0;
+        songInfo.style.opacity = 0;
+
+        setTimeout(() => {
+          audio.src = tracks[index].src;
+          cover.src = tracks[index].cover;
+          title.textContent = tracks[index].title;
+          author.textContent = tracks[index].author;
+
+          cover.style.opacity = 1;
+          songInfo.style.opacity = 1;
+
+          audio.play();
+          playPauseBtn.classList.remove('fa-play');
+          playPauseBtn.classList.add('fa-pause');
+        }, 300);
+      }
+
+      popup.addEventListener('click', () => {
+        popup.classList.add('hidden');
+        setTimeout(() => {
+          audio.muted = false;
+          loadTrack(currentTrack);
+        }, 500);
+      });
+
+      playPauseBtn.addEventListener('click', () => {
+        if (audio.paused) {
+          audio.play();
+          playPauseBtn.classList.remove('fa-play');
+          playPauseBtn.classList.add('fa-pause');
+        } else {
+          audio.pause();
+          playPauseBtn.classList.remove('fa-pause');
+          playPauseBtn.classList.add('fa-play');
+        }
+      });
+
+      prevBtn.addEventListener('click', () => {
+        currentTrack = (currentTrack - 1 + tracks.length) % tracks.length;
+        loadTrack(currentTrack);
+      });
+
+      nextBtn.addEventListener('click', () => {
+        currentTrack = (currentTrack + 1) % tracks.length;
+        loadTrack(currentTrack);
+      });
+
+      function updateSliderBackground(value) {
+        const percentage = value;
+        slider.style.background = `linear-gradient(to right, white 0%, white ${percentage}%, rgba(255, 255, 255, 0.3) ${percentage}%, rgba(255, 255, 255, 0.3) 100%)`;
+      }
+
+      audio.addEventListener('timeupdate', () => {
+        slider.value = (audio.currentTime / audio.duration) * 100 || 0;
+        updateSliderBackground(slider.value);
+      });
+
+      slider.addEventListener('input', () => {
+        audio.currentTime = (slider.value / 100) * audio.duration;
+        updateSliderBackground(slider.value);
+      });
+
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          audio.muted = false;
+        }, 100);
+      });
+    </script>
+
+    <script>
+      const bgVideo = document.getElementById('background-video');
+      bgVideo.addEventListener('play', () => {
+        console.log('Background video is playing');
+      });
+      bgVideo.addEventListener('error', (e) => {
+        console.error('Error playing background video:', e);
+      });
+    </script>
+
+</body>
+</html>
